@@ -125,12 +125,6 @@ case "$usb_config" in
                         "msm8916")
                             setprop persist.sys.usb.config diag,serial_smd,rmnet_bam,adb
                         ;;
-                        "msm8994")
-                            setprop persist.sys.usb.config diag,serial_smd,serial_tty,rmnet_ipa,mass_storage,adb
-                        ;;
-                        "msm8909")
-                            setprop persist.sys.usb.config diag,serial_smd,rmnet_qti_bam,adb
-                        ;;
                         "msm8952" | "msm8976")
                             setprop persist.sys.usb.config diag,serial_smd,rmnet_ipa,adb
                         ;;
@@ -153,22 +147,6 @@ case "$target" in
     "msm8974")
 # Select USB BAM - 2.0 or 3.0
         echo ssusb > /sys/bus/platform/devices/usb_bam/enable
-    ;;
-    "apq8084")
-	if [ "$baseband" == "apq" ]; then
-		echo "msm_hsic_host" > /sys/bus/platform/drivers/xhci_msm_hsic/unbind
-	fi
-    ;;
-    "msm8226")
-         if [ -e /sys/bus/platform/drivers/msm_hsic_host ]; then
-             if [ ! -L /sys/bus/usb/devices/1-1 ]; then
-                 echo msm_hsic_host > /sys/bus/platform/drivers/msm_hsic_host/unbind
-             fi
-         fi
-    ;;
-    "msm8994")
-        echo BAM2BAM_IPA > /sys/class/android_usb/android0/f_rndis_qc/rndis_transports
-        echo 1 > /sys/class/android_usb/android0/f_rndis_qc/max_pkt_per_xfer # Disable RNDIS UL aggregation
     ;;
     "msm8952" | "msm8976")
         echo BAM2BAM_IPA > /sys/class/android_usb/android0/f_rndis_qc/rndis_transports
@@ -227,7 +205,7 @@ esac
 cdromname="/system/etc/cdrom_install.iso"
 platformver=`cat /sys/devices/soc0/hw_platform`
 case "$target" in
-	"msm8226" | "msm8610" | "msm8916" | "msm8909" | "msm8952")
+	"msm8226" | "msm8952")
 		case $platformver in
 			"QRD")
 				echo "mounting usbcdrom lun"
