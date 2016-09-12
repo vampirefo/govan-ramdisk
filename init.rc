@@ -32,28 +32,12 @@ on boot
     chown system system /sys/class/leds/green/blink
     chown system system /sys/class/leds/blue/blink
 
-    start bqbootanim
-
-
 service surfaceflinger /system/bin/surfaceflinger
     class core
     user system
     group graphics drmrpc
     onrestart restart zygote
     writepid /dev/cpuset/system-background/tasks
-
-
-service bqbootanim /system/bin/bqbootanimation /system/media/bootanimation.mp4 /system/media/bootanimation_intro.mp4
-    oneshot
-    user media
-    group graphics audio
-    disabled
-
-
-service flash_recovery /system/bin/install-recovery.sh
-    class main
-    oneshot
-
 
 on property:persist.logd.logpersistd=logcatd
     # all exec/services are called with umask(077), so no gain beyond 0700
