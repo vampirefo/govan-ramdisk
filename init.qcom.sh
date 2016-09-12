@@ -135,17 +135,6 @@ if [ -f /sys/class/graphics/fb0/modes ]; then
 fi
 
 case "$target" in
-    "msm7630_surf" | "msm7630_1x" | "msm7630_fusion")
-        if [ -f /sys/devices/soc0/hw_platform ]; then
-            value=`cat /sys/devices/soc0/hw_platform`
-        else
-            value=`cat /sys/devices/system/soc/soc0/hw_platform`
-        fi
-        case "$value" in
-            "Fluid")
-             start profiler_daemon;;
-        esac
-        ;;
     "msm8952")
 	start_msm_irqbalance_8952
         if [ -f /sys/devices/soc0/soc_id ]; then
@@ -331,8 +320,6 @@ case "$target" in
                   esac
                   ;;
         esac
-        ;;
-    "msm8909")
         ;;
 esac
 
