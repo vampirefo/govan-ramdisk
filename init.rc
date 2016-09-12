@@ -6,16 +6,6 @@
 
 import /init.usb.rc
 import /init.${ro.hardware}.rc
-import /init.usb.configfs.rc
-
-on early-init
-
-
-on init
-
-
-on post-fs-data
-
 
 on boot
     chown system system /sys/class/timed_output/vibrator/wf_s0
@@ -31,9 +21,3 @@ on boot
     chown system system /sys/class/leds/green/blink
     chown system system /sys/class/leds/blue/blink
 
-service surfaceflinger /system/bin/surfaceflinger
-    class core
-    user system
-    group graphics drmrpc
-    onrestart restart zygote
-    writepid /dev/cpuset/system-background/tasks
