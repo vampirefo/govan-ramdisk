@@ -58,11 +58,7 @@ case "$target" in
                     setprop ro.sf.lcd_density 480
                     ;;
                 278)
-                    if [ "$soc_hwplatform" == 'QRD' ] && [ "$soc_hwsubtype" == "POLARIS" ]; then
-                        setprop ro.sf.lcd_density 320
-                    else
-                        setprop ro.sf.lcd_density 480
-                    fi
+                    setprop ro.sf.lcd_density 480
                     setprop media.msm8956hw 1
                     setprop media.settings.xml /etc/media_profiles_8956.xml
                     if [ -f /sys/devices/soc0/platform_version ]; then

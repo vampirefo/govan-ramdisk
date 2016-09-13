@@ -35,12 +35,6 @@ datamode=`getprop persist.data.mode`
 netmgr=`getprop ro.use_data_netmgrd`
 
 case "$baseband" in
-    "apq")
-    setprop ro.radio.noril yes
-    stop ril-daemon
-esac
-
-case "$baseband" in
     "msm" | "csfb" | "svlte2a" | "mdm" | "mdm2" | "sglte" | "sglte2" | "dsda2" | "unknown" | "dsda3")
     start qmuxd
     start ipacm-diag
