@@ -43,26 +43,12 @@ usbchgdisabled=`getprop persist.usb.chgdisabled`
 case "$usbchgdisabled" in
     "") ;; #Do nothing here
     * )
-    case $target in
-        "msm8660")
-        echo "$usbchgdisabled" > /sys/module/pmic8058_charger/parameters/disabled
-        echo "$usbchgdisabled" > /sys/module/smb137b/parameters/disabled
-	;;
-        "msm8960")
-        echo "$usbchgdisabled" > /sys/module/pm8921_charger/parameters/disabled
-	;;
-    esac
 esac
 
 usbcurrentlimit=`getprop persist.usb.currentlimit`
 case "$usbcurrentlimit" in
     "") ;; #Do nothing here
     * )
-    case $target in
-        "msm8960")
-        echo "$usbcurrentlimit" > /sys/module/pm8921_charger/parameters/usb_max_current
-	;;
-    esac
 esac
 
 #
@@ -205,7 +191,7 @@ esac
 cdromname="/system/etc/cdrom_install.iso"
 platformver=`cat /sys/devices/soc0/hw_platform`
 case "$target" in
-	"msm8226" | "msm8952")
+	"msm8952")
 		case $platformver in
 			"QRD")
 				echo "mounting usbcdrom lun"
