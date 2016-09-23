@@ -642,7 +642,7 @@ service p2p_supplicant /system/bin/wpa_supplicant \
     -I/system/etc/wifi/p2p_supplicant_overlay.conf -N \
     -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf \
     -I/system/etc/wifi/wpa_supplicant_overlay.conf \
-    -O/data/misc/wifi/sockets -puse_p2p_group_interface=1 -dd \
+    -O/data/misc/wifi/sockets -puse_p2p_group_interface=1 \
     -e/data/misc/wifi/entropy.bin -g@android:wpa_wlan0
 #   we will start as root and wpa_supplicant will switch to user wifi
 #   after setting up the capabilities required for WEXT
@@ -656,7 +656,7 @@ service p2p_supplicant /system/bin/wpa_supplicant \
 service wpa_supplicant /system/bin/wpa_supplicant \
     -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf \
     -I/system/etc/wifi/wpa_supplicant_overlay.conf \
-    -O/data/misc/wifi/sockets -dd \
+    -O/data/misc/wifi/sockets \
     -e/data/misc/wifi/entropy.bin -g@android:wpa_wlan0
     #   we will start as root and wpa_supplicant will switch to user wifi
     #   after setting up the capabilities required for WEXT
@@ -765,8 +765,8 @@ service fm_dl /system/bin/sh /system/etc/init.qcom.fm.sh
     oneshot
 
 on property:crypto.driver.load=1
-     insmod /system/lib/modules/qce.ko
-     insmod /system/lib/modules/qcedev.ko
+    insmod /system/lib/modules/qce.ko
+    insmod /system/lib/modules/qcedev.ko
 
 service drmdiag /system/bin/drmdiagapp
     class late_start
@@ -820,7 +820,7 @@ on property:sys.boot_completed=1
     start qcom-post-boot
     start qti-testscripts
     start atfwd
-   start boot-checkend
+    start boot-checkend
 
 service hostapd /system/bin/hostapd -dd /data/hostapd/hostapd.conf
     class late_start
@@ -969,12 +969,6 @@ service bms-sh /system/bin/sh /init.qcom.bms.sh
     oneshot
 
 service vm_bms /system/bin/vm_bms
-    user root
-    group root
-    disabled
-
-service msm_irqbalance /system/bin/msm_irqbalance -f /system/vendor/etc/msm_irqbalance.conf
-    class core
     user root
     group root
     disabled
