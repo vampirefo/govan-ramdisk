@@ -27,7 +27,6 @@
 
 import init.qcom.factory.rc
 import init.qcom.usb.rc
-import init.target.rc
 
 on early-init
     mount debugfs debugfs /sys/kernel/debug
@@ -43,6 +42,9 @@ on init
     start qfintverify
     # Set permissions for persist partition
     mkdir /persist 0771 system system
+
+    write /sys/module/qpnp_rtc/parameters/poweron_alarm 1
+
 
     # Support legacy paths
     symlink /sdcard /mnt/sdcard
@@ -92,6 +94,19 @@ on boot
     chown bluetooth bluetooth /sys/class/rfkill/rfkill0/device/extldo
     chmod 0660 /sys/class/rfkill/rfkill0/device/extldo
 
+# access permission for secure touch
+    chmod 0660 /sys/devices/soc.0/78b7000.i2c/i2c-3/3-0020/input/input0/secure_touch_enable
+    chmod 0440 /sys/devices/soc.0/78b7000.i2c/i2c-3/3-0020/input/input0/secure_touch
+    chmod 0660 /sys/devices/soc.0/78b8000.i2c/i2c-4/4-0020/input/input0/secure_touch_enable
+    chmod 0440 /sys/devices/soc.0/78b8000.i2c/i2c-4/4-0020/input/input0/secure_touch
+    chown system drmrpc /sys/devices/soc.0/78b7000.i2c/i2c-3/3-0020/input/input0/secure_touch_enable
+    chown system drmrpc /sys/devices/soc.0/78b7000.i2c/i2c-3/3-0020/input/input0/secure_touch
+    chown system drmrpc /sys/devices/soc.0/78b8000.i2c/i2c-4/4-0020/input/input0/secure_touch_enable
+    chown system drmrpc /sys/devices/soc.0/78b8000.i2c/i2c-4/4-0020/input/input0/secure_touch
+    write /proc/sys/kernel/sched_boost 1
+    write /sys/devices/soc.0/78b8000.i2c/i2c-4/4-0020/input/input0/fw_name PR1702898-s3528t_00260005_00380008.img
+    write /sys/devices/soc.0/78b8000.i2c/i2c-4/4-0020/input/input0/update_fw 1
+
     #Create QMUX deamon socket area
     mkdir /dev/socket/qmux_radio 0770 radio radio
     chmod 2770 /dev/socket/qmux_radio
@@ -116,6 +131,8 @@ on boot
 
     chmod 0444 /sys/devices/platform/msm_hsusb/gadget/usb_state
 
+    start rmt_storage
+    insmod /system/lib/modules/adsprpc.ko
 
 #   Define TCP buffer sizes for various networks
 #   ReadMin, ReadInitial, ReadMax, WriteMin, WriteInitial, WriteMax,
@@ -480,16 +497,17 @@ service config_bluetooth /system/bin/sh /system/etc/init.qcom.bt.sh "onboot"
     user root
     oneshot
 
+
+service qcom-sh /system/bin/sh /init.qcom.sh
+    class late_start
+    user root
+    oneshot
+
 service hciattach /system/bin/sh /system/etc/init.qcom.bt.sh
     class late_start
     user bluetooth
     group bluetooth net_bt_admin
     disabled
-    oneshot
-
-service qcom-sh /system/bin/sh /init.qcom.sh
-    class late_start
-    user root
     oneshot
 
 service blueduttest /system/bin/sh /system/etc/bluedut.sh
@@ -729,12 +747,6 @@ service wifi-sdio-on /system/bin/sh /system/etc/init.qcom.sdio.sh
     disabled
     oneshot
 
-service wifi-crda /system/bin/sh /system/etc/init.crda.sh
-   class late_start
-   user root
-   disabled
-   oneshot
-
 service atfwd /system/bin/ATFWD-daemon
     class late_start
     user system
@@ -747,7 +759,7 @@ on property:sys.boot_completed=1
     start atfwd
     start boot-checkend
 
-service hostapd /system/bin/hostapd -dd /data/hostapd/hostapd.conf
+service hostapd /system/bin/hostapd -dd /data/misc/wifi/hostapd.conf
     class late_start
     user root
     group root
@@ -780,18 +792,6 @@ service usb_uicc_enable /system/bin/sh /system/etc/init.qcom.uicc.sh
     disabled
     oneshot
 
-service usb_uicc_daemon /system/bin/usb_uicc_client
-    class main
-    user system
-    group system log net_raw
-    oneshot
-
-on property:sys.usb_uicc.enabled=1
-    start usb_uicc_enable
-
-on property:sys.usb_uicc.enabled=0
-    start usb_uicc_enable
-
 service hcidump /system/bin/sh /system/etc/hcidump.sh
     user bluetooth
     group bluetooth system net_bt_admin net_admin
@@ -803,12 +803,6 @@ service charger /charger
     group graphics
     seclabel u:r:healthd:s0
 
-service ssr_diag /system/bin/ssr_diag
-    class late_start
-    user system
-    group system
-    disabled
-
 service hvdcp /system/bin/hvdcp_optic
     class core
     user root
@@ -819,6 +813,12 @@ on property:persist.usb.hvdcp.detect=true
 
 on property:persist.usb.hvdcp.detect=false
     stop hvdcp
+
+service ssr_diag /system/bin/ssr_diag
+    class late_start
+    user system
+    group system
+    disabled
 
 service qbcharger /charger -m 1
     disabled
@@ -933,7 +933,13 @@ on property:sys.wfdservice=enable
 
 on property:sys.wfdservice=disable
     stop wfdservice
-	
+
+service wcnss-service /system/bin/wcnss_service
+   class main
+   user system
+   group system wifi radio
+   oneshot
+
 service set_sn /system/bin/adjust_serialno setsn
     disable
     oneshot
@@ -953,14 +959,6 @@ service qseeproxydaemon /system/vendor/bin/qseeproxydaemon
     class late_start
     user system
     group system
-
-# service for USERDEBUG
-service LKCore-dbg /system/vendor/bin/LKCore
-    class late_start
-    oneshot
-    disabled
-    user root
-    group root system log qcom_diag
 
 # service for USER
 service LKCore-rel /system/vendor/bin/LKCore
@@ -1011,12 +1009,6 @@ service seemp_healthd /system/vendor/bin/seemp_healthd
     class late_start
     user system
     group system
-
-service wcnss-service /system/bin/wcnss_service
-   class main
-   user system
-   group system wifi radio
-   oneshot
 
 service boot-check /system/bin/sh /system/etc/init.lct.bootcheck.sh
 classmain
@@ -1071,3 +1063,17 @@ service audiod /system/bin/audiod
    class late_start
    user system
    group system
+
+
+on charger
+    wait /dev/block/bootdevice/by-name/system
+    mount ext4 /dev/block/bootdevice/by-name/system /system ro barrier=1
+    load_all_props
+    setprop persist.sys.usb.config mass_storage
+    start qcom-post-boot
+    setprop persist.sys.usb.config mass_storage
+
+service mdtpd /system/vendor/bin/mdtpd
+    class late_start
+    user root
+    group system radio drmrpc
