@@ -775,7 +775,7 @@ service charger /charger
     group graphics
     seclabel u:r:healthd:s0
 
-service hvdcp /system/bin/hvdcp_optic
+service hvdcp /system/bin/hvdcp_opti
     class core
     user root
     disabled
@@ -817,15 +817,6 @@ service diag_mdlog_stop /system/bin/diag_mdlog -k
     group system qcom_diag sdcard_rw sdcard_r media_rw
     disabled
     oneshot
-
-service qlogd /system/xbin/qlogd
-    socket qlogd stream 0662 system system
-    class main
-    disabled
-on property:persist.sys.qlogd=1
-    start qlogd
-on property:persist.sys.qlogd=0
-    stop qlogd
 
 # add for logd--start
 service sdlog /system/bin/sdlog
@@ -928,20 +919,6 @@ service seemp_healthd /system/vendor/bin/seemp_healthd
     class late_start
     user system
     group system
-
-#++++>
-service mm_audio_ftm /system/bin/mm-audio-ftm
-    user root
-    group root
-    disabled
-    oneshot
-
-on property:sys.audio_ftm_loopback=1
-    start mm_audio_ftm
-
-on property:sys.audio_ftm_loopback=0
-    stop mm_audio_ftm
-#<++++	xuke @ 201151028	Audio loopback test.
 
 on charger
     wait /dev/block/bootdevice/by-name/system
